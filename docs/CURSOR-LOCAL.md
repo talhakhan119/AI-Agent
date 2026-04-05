@@ -21,6 +21,21 @@ Stronger (needs more RAM): `./scripts/pull-agent-model.sh qwen3:14b` (~9.3 GB).
 
 **Honest expectation:** A local **8B** model is **not** cloud Opus/GPT-4 quality, but it is **free** and can run tools when the stack and Cursor agree on the API.
 
+### `context canceled`, cloudflared `Incoming request ended abruptly`, Ollama `499` / load aborted
+
+Cursor (and the tunnel) typically **stop waiting after ~30–35 seconds**. Loading **qwen3:8b** from disk on **CPU** often takes **longer** on the **first** request, so the client disconnects → *context canceled* → chat/Agent looks broken.
+
+**Fix — warm up the model before Cursor:**
+
+```bash
+make warmup-ollama
+# or: ./scripts/warmup-ollama.sh qwen3:8b
+```
+
+Wait until it prints **`[OK]`** (can be **1–3+ minutes** on CPU). Then start **`make tunnel-cursor`** and use Cursor.
+
+**Optional — stay loaded (uses RAM):** in `.env` set `OLLAMA_KEEP_ALIVE=-1` so Ollama does not unload the weights after idle (default is often `5m`).
+
 ---
 
 ## Why `localhost` fails in Agent mode

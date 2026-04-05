@@ -6,7 +6,7 @@
 #  On Linux/macOS: you can also call ./scripts/*.sh directly
 # ================================================================
 
-.PHONY: setup pull pull-agent start start-gpu stop stop-purge status logs tunnel-cursor help
+.PHONY: setup pull pull-agent warmup-ollama start start-gpu stop stop-purge status logs tunnel-cursor help
 
 # Default target
 help:
@@ -16,6 +16,7 @@ help:
 	@echo "  make setup        First-time setup (generates secrets, installs configs)"
 	@echo "  make pull         Interactive model picker (pulls DeepSeek R1)"
 	@echo "  make pull-agent   Pull qwen3:8b for Cursor Agent (tool-calling)"
+	@echo "  make warmup-ollama  Load model into RAM (fixes Cursor/tunnel timeouts)"
 	@echo "  make start        Start all services (CPU mode)"
 	@echo "  make start-gpu    Start all services (NVIDIA GPU mode)"
 	@echo "  make stop         Stop all services (keeps data)"
@@ -36,6 +37,10 @@ pull:
 pull-agent:
 	@chmod +x scripts/*.sh
 	@./scripts/pull-agent-model.sh
+
+warmup-ollama:
+	@chmod +x scripts/*.sh
+	@./scripts/warmup-ollama.sh
 
 start:
 	@chmod +x scripts/*.sh
