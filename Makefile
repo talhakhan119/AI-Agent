@@ -6,7 +6,7 @@
 #  On Linux/macOS: you can also call ./scripts/*.sh directly
 # ================================================================
 
-.PHONY: setup pull start start-gpu stop stop-purge status logs help
+.PHONY: setup pull start start-gpu stop stop-purge status logs tunnel-cursor help
 
 # Default target
 help:
@@ -21,6 +21,7 @@ help:
 	@echo "  make stop-purge   Stop and delete ALL data (irreversible)"
 	@echo "  make status       Show running container status"
 	@echo "  make logs         Follow live logs from all services"
+	@echo "  make tunnel-cursor  Cloudflare tunnel for Cursor (fixes ssrf_blocked on localhost)"
 	@echo ""
 
 setup:
@@ -50,3 +51,7 @@ status:
 
 logs:
 	@docker compose logs -f
+
+tunnel-cursor:
+	@chmod +x scripts/*.sh
+	@./scripts/start-cursor-tunnel.sh
