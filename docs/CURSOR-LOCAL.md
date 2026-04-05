@@ -38,6 +38,30 @@ Wait until it prints **`[OK]`** (can be **1–3+ minutes** on CPU). Then start *
 
 ---
 
+## cloudflared: `sendmsg: operation not permitted` / QUIC / HTML error in chat
+
+Cloudflare’s **QUIC** transport uses **UDP**. On **WSL2**, **VPNs**, or strict firewalls, UDP is often blocked. Logs show:
+
+`Failed to dial a quic connection … write udp … sendmsg: operation not permitted`
+
+Then the tunnel dies; Cursor may show **raw Cloudflare 5xx HTML** instead of model output.
+
+**Fix (this repo):** `start-cursor-tunnel` defaults to **`--protocol http2`** (TCP). Override in `.env` only if you need QUIC:
+
+```env
+TUNNEL_TRANSPORT_PROTOCOL=http2
+```
+
+To try QUIC again when your network allows UDP:
+
+```env
+TUNNEL_TRANSPORT_PROTOCOL=quic
+```
+
+Restart the tunnel after changing `.env`.
+
+---
+
 ## Why `localhost` fails in Agent mode
 
 If you see:

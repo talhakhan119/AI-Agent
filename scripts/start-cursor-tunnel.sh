@@ -17,11 +17,17 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 PORT="${OLLAMA_PORT:-11434}"
+CF_PROTO="${TUNNEL_TRANSPORT_PROTOCOL:-http2}"
 if [[ -f .env ]]; then
   line="$(grep -E '^OLLAMA_PORT=' .env 2>/dev/null | tail -1 || true)"
   if [[ -n "${line}" ]]; then
     PORT="${line#OLLAMA_PORT=}"
     PORT="${PORT//$'\r'/}"
+  fi
+  pl="$(grep -E '^TUNNEL_TRANSPORT_PROTOCOL=' .env 2>/dev/null | tail -1 || true)"
+  if [[ -n "${pl}" ]]; then
+    CF_PROTO="${pl#TUNNEL_TRANSPORT_PROTOCOL=}"
+    CF_PROTO="${CF_PROTO//$'\r'/}"
   fi
 fi
 
@@ -42,6 +48,7 @@ fi
 echo ""
 echo -e "${CYAN}=== Cursor tunnel → local Ollama ===${RESET}"
 echo -e "  Target: ${GREEN}http://127.0.0.1:${PORT}${RESET}"
+echo -e "  Transport: ${GREEN}${CF_PROTO}${RESET} (http2 avoids QUIC/UDP blocked in WSL — see docs/CURSOR-LOCAL.md)"
 echo ""
 echo -e "${YELLOW}1.${RESET} Wait for a line like: ${GREEN}https://something.trycloudflare.com${RESET}"
 echo -e "${YELLOW}2.${RESET} Cursor → Settings → Models:"
@@ -55,4 +62,4 @@ echo ""
 echo -e "${CYAN}Starting cloudflared...${RESET}"
 echo ""
 
-exec cloudflared tunnel --url "http://127.0.0.1:${PORT}"
+exec cloudflared tunnel --protocol "${CF_PROTO}" --url "http://127.0.0.1:${PORT}"
