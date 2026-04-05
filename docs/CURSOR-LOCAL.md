@@ -1,5 +1,28 @@
 # Using local Ollama with Cursor (free inference)
 
+## Fast path: Cursor **Agent** / **Ask** (tool calling)
+
+**`deepseek-r1:7b` does not support tools** — Agent and **Ask** (when Cursor sends tools) will fail. Use **Qwen3** instead; Ollama lists it with **tools** + **thinking** ([qwen3 library](https://ollama.com/library/qwen3)).
+
+```bash
+cd /path/to/AI-Agent
+make pull-agent
+# same as: ./scripts/pull-agent-model.sh          → default qwen3:8b (~5.2 GB)
+# lighter:  ./scripts/pull-agent-model.sh qwen3:4b
+```
+
+Then:
+
+1. **`make tunnel-cursor`** → set **Override OpenAI Base URL** to `https://….trycloudflare.com/v1`.
+2. **Cursor → Settings → Models** → **Add custom model** **`qwen3:8b`** (exact tag) → enable it.
+3. New chat → pick **`qwen3:8b`** in the model dropdown → **Agent** or **Ask**.
+
+Stronger (needs more RAM): `./scripts/pull-agent-model.sh qwen3:14b` (~9.3 GB).
+
+**Honest expectation:** A local **8B** model is **not** cloud Opus/GPT-4 quality, but it is **free** and can run tools when the stack and Cursor agree on the API.
+
+---
+
 ## Why `localhost` fails in Agent mode
 
 If you see:
@@ -32,7 +55,7 @@ Cursor’s servers proxy some **Agent** requests. They refuse `http://localhost:
    - **OpenAI API Key**: ON, value e.g. `ollama`
    - **Override OpenAI Base URL**: ON
    - **Base URL**: `https://xxxxx.trycloudflare.com/v1` (must end with `/v1`)
-6. Enable custom model **`deepseek-r1:7b`** (or whatever you pulled).
+6. Enable the models you pulled — **`qwen3:8b`** for **Agent** / **Ask**; **`deepseek-r1:7b`** only for plain **Chat** (no tools).
 7. Leave the tunnel terminal **open** while you use Cursor.
 
 **Note:** Quick tunnels get a **new URL each time**. For a fixed URL, use [ngrok](https://ngrok.com) (authtoken) or a Cloudflare **named** tunnel.
@@ -49,21 +72,11 @@ Browser chat at `http://localhost:3000` talks to Ollama on your LAN directly —
 
 The [Continue](https://continue.dev) extension often calls `localhost` from **your** machine, which can work without a tunnel for inline chat. Agent parity varies.
 
-## Error: `does not support tools` (DeepSeek R1 + Agent mode)
+## Error: `does not support tools`
 
-**Cursor Agent** sends **tool / function-calling** requests (run terminal, read files, etc.). Many Ollama models—including **`deepseek-r1:7b`**—do **not** implement that API, so Ollama returns:
+**Agent** and **Ask** send **tool** requests. Models like **`deepseek-r1:7b`** reject them.
 
-`registry.ollama.ai/library/deepseek-r1:7b does not support tools`
+**Fix:** Run **`make pull-agent`** and select **`qwen3:8b`** in Cursor (see **Fast path** above).  
+**Or** stay on DeepSeek and use **Chat** only (not Agent / not tool-using Ask).
 
-**What to do**
-
-1. **Use Chat (or Composer), not Agent**  
-   In the chat input bar, switch the mode from **Agent** to **Chat** (or start a **New Chat** and pick **Chat**). Same tunnel + base URL + model; only Agent requires tools.
-
-2. **Keep using DeepSeek R1 for reasoning-style Q&A in Chat**  
-   Thinking / chain-of-thought still works in normal chat completions.
-
-3. **If you need Agent-style automation with a local model**  
-   Try a model Ollama exposes with tool support (varies by image/version), e.g. pull and test **`qwen2.5-coder:7b`** or **`llama3.1:8b`**, add them in Cursor Models, and see if Agent accepts them. There is no guarantee Cursor Agent will fully match cloud agents.
-
-**Summary:** Tunnel fixes `ssrf_blocked`. **Chat vs Agent** fixes `does not support tools` for DeepSeek R1.
+**Summary:** Tunnel fixes `ssrf_blocked`. **qwen3** (or another tool-capable Ollama model) fixes `does not support tools` for Agent-style modes.

@@ -6,7 +6,7 @@
 #  On Linux/macOS: you can also call ./scripts/*.sh directly
 # ================================================================
 
-.PHONY: setup pull start start-gpu stop stop-purge status logs tunnel-cursor help
+.PHONY: setup pull pull-agent start start-gpu stop stop-purge status logs tunnel-cursor help
 
 # Default target
 help:
@@ -15,6 +15,7 @@ help:
 	@echo ""
 	@echo "  make setup        First-time setup (generates secrets, installs configs)"
 	@echo "  make pull         Interactive model picker (pulls DeepSeek R1)"
+	@echo "  make pull-agent   Pull qwen3:8b for Cursor Agent (tool-calling)"
 	@echo "  make start        Start all services (CPU mode)"
 	@echo "  make start-gpu    Start all services (NVIDIA GPU mode)"
 	@echo "  make stop         Stop all services (keeps data)"
@@ -31,6 +32,10 @@ setup:
 pull:
 	@chmod +x scripts/*.sh
 	@./scripts/pull-model.sh
+
+pull-agent:
+	@chmod +x scripts/*.sh
+	@./scripts/pull-agent-model.sh
 
 start:
 	@chmod +x scripts/*.sh
