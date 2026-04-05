@@ -1,0 +1,24 @@
+# ============================================================
+#  GPU Override — merge this with docker-compose.yml
+#  Usage: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+#
+#  Requirements:
+#    NVIDIA: Docker Desktop with WSL2 backend + NVIDIA Container Toolkit
+#    AMD:    ROCm-compatible Ollama image (change image below)
+# ============================================================
+
+services:
+  ollama:
+    # For AMD ROCm GPUs, replace with: ollama/ollama:rocm
+    image: ollama/ollama:latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all            # use "1" to limit to one GPU
+              capabilities: [gpu]
+    environment:
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-all}
+      # GPU layers to offload. Set to a high number to push everything to GPU.
+      - OLLAMA_GPU_LAYERS=${OLLAMA_GPU_LAYERS:-999}

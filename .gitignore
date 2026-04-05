@@ -1,0 +1,28 @@
+# ── Secrets (NEVER commit these) ─────────────────────────────
+.env
+
+# ── Docker volumes (managed externally) ──────────────────────
+volumes/
+
+# ── OS files ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor ───────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Backups created by setup scripts ─────────────────────────
+*.bak
+
+# ── Python ───────────────────────────────────────────────────
+__pycache__/
+*.pyc

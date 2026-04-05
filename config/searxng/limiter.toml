@@ -1,0 +1,9 @@
+# SearXNG bot/rate-limiter configuration
+# Disabled for local personal use — all requests are trusted
+
+[botdetection.ip_limit]
+link_token = false
+
+[botdetection.ip_lists]
+block_ip = []
+pass_ip = []
